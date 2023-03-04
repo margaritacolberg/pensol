@@ -16,7 +16,8 @@ of the initial and final states (`Pb`) are calculated for each.
 See top level comment in each file for more details as to what each file does.
 Some top level comments also contain examples of how to run each file, if
 complicated. The pathways given in these examples assume user is currently in
-the `pensol/crambin` directory.
+the `pensol/crambin` directory. Download `crambin.zip` from
+[Releases](https://github.com/margaritacolberg/pensol/releases).
 
   * `src`: C++ source code for PenSol program
 
