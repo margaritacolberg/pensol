@@ -1,0 +1,7 @@
+/debug/
+/release/
+/experiments/
+__pycache__
+*.h5
+.*.swp
+*.png
