@@ -31,6 +31,10 @@ def run(json_ha):
 
     for json_hy in glob.glob(src):
         json_name = re.search(r'_([0-9]+)_([01]+)_([01]+)\.json$', json_hy)
+
+        if json_name is None:
+            continue
+
         layer, bits_in, bits_out = json_name.groups()
 
         output_name = 'hardspheres_{}_{}_{}'.format(layer, bits_in, bits_out)
