@@ -34,31 +34,50 @@ def main(args):
     eps = float(args.eps)
     del_t = json_data['del_t']
 
-    s_bias_diff = np.array(get_s_bias(args.csv_s))
+    exp_s_bias_diff, rel_e_s_bias = get_exp_s_bias(args.csv_s)
     # the final state j has one more bond than the initial state i
     bits_i, bits_j, t_ind, int_i, int_j = matrix_element.get_state_data(args.csv_t)
 
-    P_i_div_P_j = math.exp((-beta*eps) + s_bias_diff)
-    Pb = 1 / (1 + (1 / P_i_div_P_j))
+    # percent relative error for P_i_div_P_j is the same as rel_e_s_bias
+    P_i_div_P_j = math.exp(-beta * eps) * exp_s_bias_diff
+    P_j_div_P_i = 1 / P_i_div_P_j
+    Pb = 1 / (1 + P_j_div_P_i)
+    Pb_rel_e = (rel_e_s_bias * P_j_div_P_i) / (1 + P_j_div_P_i)
+    Pb_err = (Pb_rel_e / 100) * Pb
+    print('Pb for hybridmc is {}, with error {}'.format(Pb, Pb_err))
 
     inner_fpt, outer_fpt = matrix_element.get_fpt(args.csv_t, t_ind)
 
-    D = get_D('diff_coeff.csv')
+    D, D_rel_e = get_D('diff_coeff.csv')
 
-    K_ji_inv = P_i_div_P_j * (inner_fpt / D) + (outer_fpt / D)
+    term_1 = P_i_div_P_j * (inner_fpt / D)
+    term_2 = outer_fpt / D
+    K_ji_inv = term_1 + term_2
+
+    term_1_rel_e = math.sqrt(exp_s_bias_diff**2 + 5.0**2 + D_rel_e**2)
+    term_1_abs_e = (term_1_rel_e / 100) * term_1
+    term_2_rel_e = math.sqrt(5.0**2 + D_rel_e**2)
+    term_2_abs_e = (term_2_rel_e / 100) * term_2
+    K_ji_inv_abs_e = math.sqrt(term_1_abs_e**2 + term_2_abs_e**2)
+
     # K_ij the rate of forming a bond by transitioning from state i to j, and
     # K_ji is the rate of breaking a bond by transitioning from state j to
     # state i
     K_ji = 1 / K_ji_inv
+    K_ji_rel_e = (K_ji_inv_abs_e / K_ji_inv) * 100
+    K_ji_abs_e = (K_ji_rel_e / 100) * K_ji
     K_ij = K_ji * P_i_div_P_j
+    K_ij_rel_e = math.sqrt(K_ji_rel_e**2 + rel_e_s_bias**2)
+    K_ij_abs_e = (K_ij_rel_e / 100) * K_ij
 
     krate = K_ij + K_ji
-    print('rate from hybridmc is', krate)
+    krate_err = math.sqrt(K_ji_abs_e**2 + K_ij_abs_e**2)
+    print('krate for hybridmc is {}, with error {}'.format(krate, krate_err))
 
     csv_name = '../krate_hybridmc.csv'
     with open(csv_name, 'a') as output_csv:
         writer = csv.writer(output_csv)
-        writer.writerows([[bits_i, bits_j, eps, D, Pb, krate]])
+        writer.writerows([[bits_i, bits_j, eps, D, Pb, Pb_err, krate, krate_err]])
 
 
 def get_D(csv_in):
@@ -67,19 +86,20 @@ def get_D(csv_in):
 
         for row in csv_data:
             D = float(row[0])
+            D_rel_e = (float(row[1]) / D) * 100
 
-    return D
+    return D, D_rel_e
 
 
-def get_s_bias(csv_in):
-    s_bias = []
+def get_exp_s_bias(csv_in):
     with open(csv_in, 'r') as input_csv:
         csv_data = csv.reader(input_csv, delimiter=',')
 
         for row in csv_data:
-            s_bias.append(float(row[0]))
+            exp_s_bias = float(row[0])
+            rel_e_s_bias = float(row[2])
 
-    return s_bias
+    return exp_s_bias, rel_e_s_bias
 
 
 if __name__ == '__main__':

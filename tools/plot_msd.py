@@ -26,6 +26,7 @@ import numpy as np
 import os
 import re
 import scipy.stats
+from sklearn import utils
 
 
 def main(args):
@@ -46,40 +47,36 @@ def main(args):
 
     traj_num = 0
     msd = np.zeros(n_pos)
-    boot = []
     for file_path in os.listdir('.'):
         if re.search('hardspheres_[0-9]+_([01]+)_([01]+)_[0-9]+_msd\.csv',
                 file_path):
             print(file_path)
             traj_num += 1
-            boot_i = []
             with open(file_path, 'r') as input_csv:
                 data = csv.reader(input_csv, delimiter=',')
 
                 count = 0
                 for row in data:
                     msd[count] += float(row[0])
-                    boot_i.append(float(row[0]))
                     count += 1
 
-            fit_i = np.polyfit(t[t_i:t_j], boot_i[t_i:t_j], 1)
-            boot.append(fit_i[0] / 6.0)
-
-    sem = scipy.stats.sem(boot, axis=0)
-    print('number of trajectories', traj_num)
+    print('number of trajectories:', traj_num)
     msd /= traj_num
 
     fit = np.polyfit(t[t_i:t_j], msd[t_i:t_j], 1)
     D = fit[0] / 6.0
 
+    nboot = 1000
+    D_err = D_std(nboot, msd[t_i:t_j], t[t_i:t_j], t_i, t_j)
+
     print('first t is', t[t_i])
     print('last t is', t[t_j])
     print('the diffusion coefficient is', D)
-    print('the error of the diffusion coefficient is', sem)
+    print('the error of the diffusion coefficient is', D_err)
 
     with open('diff_coeff.csv', 'w') as output_csv:
         writer = csv.writer(output_csv)
-        writer.writerow([D])
+        writer.writerow([D, D_err])
 
     line = []
     t_fit = []
@@ -94,8 +91,35 @@ def main(args):
     plt.legend()
     plt.xlabel('t')
     plt.ylabel('MSD')
-    plt.savefig('msd.png')
+    plt.savefig('msd.pdf', format='pdf')
     plt.clf()
+
+
+def D_std(nboot, msd, t, t_i, t_j):
+    data = list(zip(msd, t))
+
+    se = []
+    for i in range(nboot):
+        boot_i = utils.resample(data, n_samples=len(msd),
+                random_state=None)
+
+        boot_i.sort(key=lambda x: x[1])
+        msd_boot, t_boot = map(list, zip(*boot_i))
+        fit = np.polyfit(t_boot, msd_boot, 1)
+
+        line = []
+        t_fit = []
+        for i in range(len(t)):
+            line_i = (fit[0] * t_boot[i]) + fit[1]
+            line.append(line_i)
+            t_fit.append(t[i])
+
+        residuals = np.array(msd_boot) - np.array(line)
+        ss_res = np.sum(residuals**2)
+        n_val = len(msd_boot)
+        se.append(np.sqrt(ss_res / (n_val - 2)))
+
+    return np.mean(se)
 
 
 if __name__ == '__main__':

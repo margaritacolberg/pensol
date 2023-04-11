@@ -95,9 +95,9 @@ def get_s_bias(data, output_name, exe, hdf5_in, seed_increment, i):
                     stderr=subprocess.STDOUT)
 
     with h5py.File(hdf5_name, 'r') as f:
-        s_bias = (f['s_bias'][0])
+        s_bias = f['s_bias'][0]
 
-    return s_bias
+    return np.exp(s_bias)
 
 
 if __name__ == '__main__':
