@@ -67,7 +67,7 @@ def main(args):
     D = fit[0] / 6.0
 
     nboot = 1000
-    D_err = D_std(nboot, msd[t_i:t_j], t[t_i:t_j], t_i, t_j)
+    D_err = D_std(nboot, msd[t_i:t_j], t[t_i:t_j])
 
     print('first t is', t[t_i])
     print('last t is', t[t_j])
@@ -95,7 +95,7 @@ def main(args):
     plt.clf()
 
 
-def D_std(nboot, msd, t, t_i, t_j):
+def D_std(nboot, msd, t):
     data = list(zip(msd, t))
 
     se = []
