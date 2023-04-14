@@ -80,11 +80,16 @@ def main(args):
 
     Pb, krate = Pb_krate(eps, config_prob, t)
     nboot = 300
-    l_Pb_err, u_Pb_err, l_krate_err, u_krate_err = Pb_krate_se(config_prob_store, t, eps, traj_num, nboot)
+    l_Pb_ci, u_Pb_ci, l_krate_ci, u_krate_ci = Pb_krate_se(config_prob_store, t, eps, traj_num, nboot)
 
     print('parameters: Pb: {}, krate: {}'.format(Pb, krate))
-    print('the CI of Pb is [{}, {}]'.format(l_Pb_err, u_Pb_err))
-    print('the CI of krate is [{}, {}]'.format(l_krate_err, u_krate_err))
+    print('the CI of Pb is [{}, {}]'.format(l_Pb_ci, u_Pb_ci))
+    print('the CI of krate is [{}, {}]'.format(l_krate_ci, u_krate_ci))
+
+    l_Pb_err = Pb - l_Pb_ci
+    u_Pb_err = u_Pb_ci - Pb
+    l_krate_err = krate - l_krate_ci
+    u_krate_err = u_krate_ci - krate
 
     csv_name = '../krate_solvent.csv'
     with open(csv_name, 'a') as output_csv:
