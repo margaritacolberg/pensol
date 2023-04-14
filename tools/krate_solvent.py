@@ -80,15 +80,16 @@ def main(args):
 
     Pb, krate = Pb_krate(eps, config_prob, t)
     nboot = 300
-    se = Pb_krate_se(config_prob_store, t, eps, traj_num, nboot)
+    l_Pb_err, u_Pb_err, l_krate_err, u_krate_err = Pb_krate_se(config_prob_store, t, eps, traj_num, nboot)
 
     print('parameters: Pb: {}, krate: {}'.format(Pb, krate))
-    print('standard error: {}'.format(se))
+    print('the CI of Pb is [{}, {}]'.format(l_Pb_err, u_Pb_err))
+    print('the CI of krate is [{}, {}]'.format(l_krate_err, u_krate_err))
 
     csv_name = '../krate_solvent.csv'
     with open(csv_name, 'a') as output_csv:
         writer = csv.writer(output_csv)
-        writer.writerows([[bits_i, bits_j, eps, Pb, krate, se]])
+        writer.writerows([[bits_i, bits_j, eps, Pb, l_Pb_err, u_Pb_err, krate, l_krate_err, u_krate_err]])
 
     plt.plot(t, config_prob, label='config prob data')
     plt.plot(t, P(t, Pb, krate), '--', label='fit')
@@ -129,7 +130,6 @@ def Pb_krate(eps, config_prob, t):
 def Pb_krate_se(config_prob_store, t, eps, traj_num, nboot):
     Pb = []
     krate = []
-    se = []
     for i in range(nboot):
         boot = []
         for j in range(len(config_prob_store)):
@@ -141,12 +141,25 @@ def Pb_krate_se(config_prob_store, t, eps, traj_num, nboot):
         Pb.append(Pb_i)
         krate.append(krate_i)
 
+        '''
         residuals = boot - P(t, Pb_i, krate_i)
         ss_res = np.sum(residuals**2)
         n_val = len(boot)
         se.append(np.sqrt(ss_res / (n_val - 2)))
+        '''
 
-    return np.mean(se)
+    Pb = np.sort(Pb)
+    krate = np.sort(krate)
+
+    lower_ind = int(0.025 * nboot)
+    upper_ind = int(0.975 * nboot)
+
+    lower_Pb = Pb[lower_ind]
+    upper_Pb = Pb[upper_ind]
+    lower_krate = krate[lower_ind]
+    upper_krate = krate[upper_ind]
+
+    return lower_Pb, upper_Pb, lower_krate, upper_krate
 
 
 if __name__ == '__main__':

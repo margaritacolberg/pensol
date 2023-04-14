@@ -48,36 +48,28 @@ def main(args):
 
     inner_fpt, outer_fpt = matrix_element.get_fpt(args.csv_t, t_ind)
 
-    D, D_rel_e = get_D('diff_coeff.csv')
+    D, l_D_rel_e, u_D_rel_e = get_D('diff_coeff.csv')
 
     term_1 = P_i_div_P_j * (inner_fpt / D)
     term_2 = outer_fpt / D
     K_ji_inv = term_1 + term_2
 
-    term_1_rel_e = math.sqrt(exp_s_bias_diff**2 + 5.0**2 + D_rel_e**2)
-    term_1_abs_e = (term_1_rel_e / 100) * term_1
-    term_2_rel_e = math.sqrt(5.0**2 + D_rel_e**2)
-    term_2_abs_e = (term_2_rel_e / 100) * term_2
-    K_ji_inv_abs_e = math.sqrt(term_1_abs_e**2 + term_2_abs_e**2)
-
     # K_ij the rate of forming a bond by transitioning from state i to j, and
     # K_ji is the rate of breaking a bond by transitioning from state j to
     # state i
     K_ji = 1 / K_ji_inv
-    K_ji_rel_e = (K_ji_inv_abs_e / K_ji_inv) * 100
-    K_ji_abs_e = (K_ji_rel_e / 100) * K_ji
     K_ij = K_ji * P_i_div_P_j
-    K_ij_rel_e = math.sqrt(K_ji_rel_e**2 + rel_e_s_bias**2)
-    K_ij_abs_e = (K_ij_rel_e / 100) * K_ij
+
+    l_krate_err = calculate_K_err(exp_s_bias_diff, l_D_rel_e, term_1, term_2, rel_e_s_bias, K_ji_inv, K_ji, K_ij)
+    u_krate_err = calculate_K_err(exp_s_bias_diff, u_D_rel_e, term_1, term_2, rel_e_s_bias, K_ji_inv, K_ji, K_ij)
 
     krate = K_ij + K_ji
-    krate_err = math.sqrt(K_ji_abs_e**2 + K_ij_abs_e**2)
-    print('krate for hybridmc is {}, with error {}'.format(krate, krate_err))
+    print('krate for hybridmc is {}, with error [{}, {}]'.format(krate, l_krate_err, u_krate_err))
 
     csv_name = '../krate_hybridmc.csv'
     with open(csv_name, 'a') as output_csv:
         writer = csv.writer(output_csv)
-        writer.writerows([[bits_i, bits_j, eps, D, Pb, Pb_err, krate, krate_err]])
+        writer.writerows([[bits_i, bits_j, eps, D, Pb, Pb_err, krate, l_krate_err, u_krate_err]])
 
 
 def get_D(csv_in):
@@ -86,9 +78,12 @@ def get_D(csv_in):
 
         for row in csv_data:
             D = float(row[0])
-            D_rel_e = (float(row[1]) / D) * 100
+            l_D_abs_e = D - float(row[1])
+            l_D_rel_e = (l_D_abs_e / D) * 100
+            u_D_abs_e = float(row[2]) - D
+            u_D_rel_e = (u_D_abs_e / D) * 100
 
-    return D, D_rel_e
+    return D, l_D_rel_e, u_D_rel_e
 
 
 def get_exp_s_bias(csv_in):
@@ -100,6 +95,23 @@ def get_exp_s_bias(csv_in):
             rel_e_s_bias = float(row[2])
 
     return exp_s_bias, rel_e_s_bias
+
+
+def calculate_K_err(exp_s_bias_diff, D_rel_e, term_1, term_2, rel_e_s_bias, K_ji_inv, K_ji, K_ij):
+    term_1_rel_e = math.sqrt(exp_s_bias_diff**2 + 5.0**2 + D_rel_e**2)
+    term_1_abs_e = (term_1_rel_e / 100) * term_1
+    term_2_rel_e = math.sqrt(5.0**2 + D_rel_e**2)
+    term_2_abs_e = (term_2_rel_e / 100) * term_2
+    K_ji_inv_abs_e = math.sqrt(term_1_abs_e**2 + term_2_abs_e**2)
+
+    K_ji_rel_e = (K_ji_inv_abs_e / K_ji_inv) * 100
+    K_ji_abs_e = (K_ji_rel_e / 100) * K_ji
+    K_ij_rel_e = math.sqrt(K_ji_rel_e**2 + rel_e_s_bias**2)
+    K_ij_abs_e = (K_ij_rel_e / 100) * K_ij
+
+    krate_err = math.sqrt(K_ji_abs_e**2 + K_ij_abs_e**2)
+
+    return krate_err
 
 
 if __name__ == '__main__':

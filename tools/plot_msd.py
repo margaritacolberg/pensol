@@ -67,16 +67,16 @@ def main(args):
     D = fit[0] / 6.0
 
     nboot = 1000
-    D_err = D_std(nboot, msd[t_i:t_j], t[t_i:t_j])
+    l_D_err, u_D_err = D_std(nboot, msd[t_i:t_j], t[t_i:t_j])
 
     print('first t is', t[t_i])
     print('last t is', t[t_j])
     print('the diffusion coefficient is', D)
-    print('the error of the diffusion coefficient is', D_err)
+    print('the CI of the diffusion coefficient is [{}, {}]'.format(l_D_err, u_D_err))
 
     with open('diff_coeff.csv', 'w') as output_csv:
         writer = csv.writer(output_csv)
-        writer.writerow([D, D_err])
+        writer.writerow([D, l_D_err, u_D_err])
 
     line = []
     t_fit = []
@@ -98,7 +98,7 @@ def main(args):
 def D_std(nboot, msd, t):
     data = list(zip(msd, t))
 
-    se = []
+    D = []
     for i in range(nboot):
         boot_i = utils.resample(data, n_samples=len(msd),
                 random_state=None)
@@ -106,7 +106,9 @@ def D_std(nboot, msd, t):
         boot_i.sort(key=lambda x: x[1])
         msd_boot, t_boot = map(list, zip(*boot_i))
         fit = np.polyfit(t_boot, msd_boot, 1)
+        D.append(fit[0] / 6.0)
 
+        '''
         line = []
         t_fit = []
         for i in range(len(t)):
@@ -118,8 +120,17 @@ def D_std(nboot, msd, t):
         ss_res = np.sum(residuals**2)
         n_val = len(msd_boot)
         se.append(np.sqrt(ss_res / (n_val - 2)))
+        '''
 
-    return np.mean(se)
+    D = np.sort(D)
+
+    lower_ind = int(0.025 * nboot)
+    upper_ind = int(0.975 * nboot)
+
+    lower_D = D[lower_ind]
+    upper_D = D[upper_ind]
+
+    return lower_D, upper_D
 
 
 if __name__ == '__main__':
