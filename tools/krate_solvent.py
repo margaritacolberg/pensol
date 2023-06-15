@@ -66,8 +66,6 @@ def main(args):
                 else:
                     config_prob = list(map(add, config_prob, config_prob_i))
 
-    config_prob_store = list(map(list, zip(*config_prob_store)))
-
     print('number of trajectories:', traj_num)
     config_prob = np.array(config_prob) / traj_num
     config_prob = [1.0 - i for i in config_prob]
