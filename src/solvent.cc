@@ -14,21 +14,24 @@ void collide_sol(System &sys, Random &mt, const Param &p) {
 
   const unsigned int nbeads = sys.pos.size();
 
+  const double a = p.angle * M_PI / 180;
+  unsigned int cos_a = cos(a);
+  unsigned int sin_a = sin(a);
+
   for (unsigned int i = 0; i < nbeads; i++) {
     double u_x, u_y, u_z;
     unit_sphere(mt, u_x, u_y, u_z);
 
-    const double a = p.angle * M_PI / 180;
     // rotation matrix with angle "a" degrees
-    const double Rxx = cos(a) + u_x * u_x * (1 - cos(a));
-    const double Rxy = u_x * u_y * (1 - cos(a)) - u_z * sin(a);
-    const double Rxz = u_x * u_z * (1 - cos(a)) + u_y * sin(a);
-    const double Ryx = u_y * u_x * (1 - cos(a)) + u_z * sin(a);
-    const double Ryy = cos(a) + u_y * u_y * (1 - cos(a));
-    const double Ryz = u_y * u_z * (1 - cos(a)) - u_x * sin(a);
-    const double Rzx = u_z * u_x * (1 - cos(a)) - u_y * sin(a);
-    const double Rzy = u_z * u_y * (1 - cos(a)) + u_x * sin(a);
-    const double Rzz = cos(a) + u_z * u_z * (1 - cos(a));
+    const double Rxx = cos_a + u_x * u_x * (1 - cos_a);
+    const double Rxy = u_x * u_y * (1 - cos_a) - u_z * sin_a;
+    const double Rxz = u_x * u_z * (1 - cos_a) + u_y * sin_a;
+    const double Ryx = u_y * u_x * (1 - cos_a) + u_z * sin_a;
+    const double Ryy = cos_a + u_y * u_y * (1 - cos_a);
+    const double Ryz = u_y * u_z * (1 - cos_a) - u_x * sin_a;
+    const double Rzx = u_z * u_x * (1 - cos_a) - u_y * sin_a;
+    const double Rzy = u_z * u_y * (1 - cos_a) + u_x * sin_a;
+    const double Rzz = cos_a + u_z * u_z * (1 - cos_a);
 
     // number of solvent particles in a cell
     std::poisson_distribution<unsigned int> poisson(Vc * rho);

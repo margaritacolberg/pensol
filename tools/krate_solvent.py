@@ -96,11 +96,11 @@ def main(args):
         writer = csv.writer(output_csv)
         writer.writerows([[bits_i, bits_j, eps, Pb, l_Pb_err, u_Pb_err, krate, l_krate_err, u_krate_err]])
 
-    plt.plot(t, config_prob, label='config prob data')
+    plt.plot(t, config_prob, label='data')
     plt.plot(t, P(t, Pb, krate), '--', label='fit')
     plt.legend()
     plt.xlabel('t')
-    plt.ylabel('Probability')
+    plt.ylabel('Configurational Probability')
     plt.savefig('probability_{}.pdf'.format(eps), format='pdf')
 
 
@@ -136,22 +136,14 @@ def Pb_krate_se(config_prob_store, t, eps, traj_num, nboot):
     Pb = []
     krate = []
     for i in range(nboot):
-        boot = []
-        for j in range(len(config_prob_store)):
-            boot_j = utils.resample(config_prob_store[j],
-                    n_samples=len(config_prob_store[j]), random_state=None)
-            boot.append(1.0 - np.mean(boot_j))
+        boot = utils.resample(config_prob_store, n_samples=len(config_prob_store), random_state=None)
+
+        boot = np.sum(boot, axis=0) / traj_num
+        boot = [1.0 - i for i in boot]
 
         Pb_i, krate_i = Pb_krate(eps, boot, t)
         Pb.append(Pb_i)
         krate.append(krate_i)
-
-        '''
-        residuals = boot - P(t, Pb_i, krate_i)
-        ss_res = np.sum(residuals**2)
-        n_val = len(boot)
-        se.append(np.sqrt(ss_res / (n_val - 2)))
-        '''
 
     Pb = np.sort(Pb)
     krate = np.sort(krate)

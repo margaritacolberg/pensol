@@ -86,7 +86,7 @@ def main(args):
             line.append(line_i)
             t_fit.append(t[i])
 
-    plt.plot(t[0:150], msd[0:150], label='MSD data')
+    plt.plot(t[0:500], msd[0:500], label='data')
     plt.plot(t_fit, line, label='fit')
     plt.legend()
     plt.xlabel('t')

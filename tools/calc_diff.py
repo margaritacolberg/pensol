@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # Copyright (c) 2018-2023 Margarita Colberg
 # SPDX-License-Identifier: BSD-3-Clause
+#
+# calc_diff.py calculates the diffusion coefficient using both old and new sets
+# of parameters; results are printed to terminal
+#
+# example of how to run:
+# python calc_diff.py ../examples/crambin.json 8.87 0.013
 
 import argparse
 import json
@@ -30,13 +36,13 @@ def main(args):
     gamma = ((1 - c_gamma) / (1 + mu)) * rho * kummer
     new_gamma = ((1 - c_gamma) / (1 + mu)) * new_rho * new_kummer
 
-    # original D
+    # original (old parameter) D
     D = (1 / mu) * del_t * ((2 - gamma) / (2 * gamma))
-    print('D in simulation units:', D)
+    print('old parameter D in simulation units:', D)
     # adjust rho and del_t so that D matches with Stokes-Einstein D, if
     # original D is not identical to Stokes-Einstein D
     new_D = (1 / mu) * new_del_t * ((2 - new_gamma) / (2 * new_gamma))
-    print('adjusted D in simulation units:', new_D)
+    print('new parameter D in simulation units:', new_D)
 
     # length of covalent bond between two amino acids (from Bayat et al., J.
     # Chem. Phys., 2012, 136)
@@ -47,10 +53,10 @@ def main(args):
     kT = (1.3806 * 10**(-23)) * 310.15
     # see Howard et al., Curr. Opin. Chem. Eng., 2019, 23
     tau = math.sqrt((m * a**2) / kT)
-    print('D in m^2/s:', D * (a**2 / tau))
-    print('adjusted D in m^2/s:', new_D * (a**2 / tau))
+    print('old parameter D in m^2/s:', D * (a**2 / tau))
+    print('new parameter D in m^2/s:', new_D * (a**2 / tau))
 
-    # viscosity of water at body temperatures (310.15 K)
+    # viscosity of water at body temperatures (310.15 K), in Pa s
     nu = 0.0006913
     # radius of generic amino acid
     R = 0.5 * 10**(-9)
@@ -62,6 +68,8 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('json', help='json input file')
+    parser.add_argument('new_rho', help='rho for new parameters')
+    parser.add_argument('new_del_t', help='del_t for new parameters')
     args = parser.parse_args()
 
     main(args)
