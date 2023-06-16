@@ -134,7 +134,8 @@ def Pb_krate_se(config_prob_store, t, eps, traj_num, nboot):
     Pb = []
     krate = []
     for i in range(nboot):
-        boot = utils.resample(config_prob_store, n_samples=len(config_prob_store), random_state=None)
+        boot = utils.resample(config_prob_store,
+                n_samples=len(config_prob_store), random_state=None)
 
         boot = np.sum(boot, axis=0) / traj_num
         boot = [1.0 - i for i in boot]

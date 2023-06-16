@@ -24,6 +24,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import random
 import re
 import scipy.stats
 from sklearn import utils
@@ -44,9 +45,11 @@ def main(args):
 
     t_i = int(args.t_i)
     t_j = int(args.t_j)
+    gap = int(args.gap)
 
     traj_num = 0
     msd = np.zeros(n_pos)
+    msd_store = []
     for file_path in os.listdir('.'):
         if re.search('hardspheres_[0-9]+_([01]+)_([01]+)_[0-9]+_msd\.csv',
                 file_path):
@@ -56,9 +59,15 @@ def main(args):
                 data = csv.reader(input_csv, delimiter=',')
 
                 count = 0
+                msd_i = []
                 for row in data:
                     msd[count] += float(row[0])
+                    msd_i.append(float(row[0]))
                     count += 1
+
+                msd_store.append(msd_i)
+
+    msd_store = np.array(msd_store)
 
     print('number of trajectories:', traj_num)
     msd /= traj_num
@@ -66,8 +75,8 @@ def main(args):
     fit = np.polyfit(t[t_i:t_j], msd[t_i:t_j], 1)
     D = fit[0] / 6.0
 
-    nboot = 1000
-    l_D_err, u_D_err = D_std(nboot, msd[t_i:t_j], t[t_i:t_j])
+    nboot = 300
+    l_D_err, u_D_err = D_std(nboot, traj_num, msd_store, t, t_i, t_j, gap)
 
     print('first t is', t[t_i])
     print('last t is', t[t_j])
@@ -95,32 +104,17 @@ def main(args):
     plt.clf()
 
 
-def D_std(nboot, msd, t):
-    data = list(zip(msd, t))
-
+def D_std(nboot, traj_num, msd, t, t_min, t_max, gap):
     D = []
     for i in range(nboot):
-        boot_i = utils.resample(data, n_samples=len(msd),
+        t_i, t_j = get_times(t_min, t_max, gap)
+
+        boot_i = utils.resample(msd, n_samples=len(msd),
                 random_state=None)
 
-        boot_i.sort(key=lambda x: x[1])
-        msd_boot, t_boot = map(list, zip(*boot_i))
-        fit = np.polyfit(t_boot, msd_boot, 1)
+        boot_i = np.sum(boot_i, axis=0) / traj_num
+        fit = np.polyfit(t[t_i:t_j], boot_i[t_i:t_j], 1)
         D.append(fit[0] / 6.0)
-
-        '''
-        line = []
-        t_fit = []
-        for i in range(len(t)):
-            line_i = (fit[0] * t_boot[i]) + fit[1]
-            line.append(line_i)
-            t_fit.append(t[i])
-
-        residuals = np.array(msd_boot) - np.array(line)
-        ss_res = np.sum(residuals**2)
-        n_val = len(msd_boot)
-        se.append(np.sqrt(ss_res / (n_val - 2)))
-        '''
 
     D = np.sort(D)
 
@@ -133,6 +127,13 @@ def D_std(nboot, msd, t):
     return lower_D, upper_D
 
 
+def get_times(t_min, t_max, gap):
+    t_i = random.randint(t_min, t_max-gap)
+    t_j = random.randint(t_i+gap, t_max)
+
+    return t_i, t_j
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('json_in', help='json input file')
@@ -140,6 +141,8 @@ if __name__ == '__main__':
             help='index of first t in range of t for fitting')
     parser.add_argument('t_j',
             help='index of last t in range of t for fitting')
+    parser.add_argument('gap',
+            help='minimum gap in indices between first t and last t')
     args = parser.parse_args()
 
     main(args)
