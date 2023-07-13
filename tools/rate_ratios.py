@@ -8,7 +8,7 @@
 # evaluate the diffusion coefficient for hybridmc krates
 #
 # example of how to run:
-# python ../tools/rate_ratios.py eps_Pb_krate.csv avg_s_bias.csv hybridmc_0_0_1.csv
+# python ../tools/rate_ratios.py eps_Pu_krate.csv avg_s_bias.csv hybridmc_0_0_1.csv
 
 import matrix_element
 
@@ -23,7 +23,7 @@ def main(args):
     beta = 1.0
 
     s_bias = get_s_bias(args.s_csv, int_i, int_j)
-    eps, Pb, krate = get_eps_Pb_krate(args.csv_in)
+    eps, Pu, krate = get_eps_Pu_krate(args.csv_in)
 
     K_ji = []
     K_ij = []
@@ -48,9 +48,9 @@ def main(args):
         writer.writerows(output_1)
 
     output_2 = []
-    for i in range(len(Pb)):
+    for i in range(len(Pu)):
         P = P_ratio(beta, eps[i], 0.0, max(s_bias), min(s_bias))
-        output_2.append([eps[i], P, Pb[i]])
+        output_2.append([eps[i], P, Pu[i]])
 
     with open('prob_compare.csv', 'w') as output_csv:
         writer = csv.writer(output_csv)
@@ -70,19 +70,19 @@ def get_s_bias(csv_in, int_i, int_j):
     return s_bias
 
 
-def get_eps_Pb_krate(csv_in):
+def get_eps_Pu_krate(csv_in):
     eps = []
-    Pb = []
+    Pu = []
     krate = []
     with open(csv_in, 'r') as input_csv:
         csv_data = csv.reader(input_csv, delimiter=',')
 
         for row in csv_data:
             eps.append(float(row[0]))
-            Pb.append(float(row[1]))
+            Pu.append(float(row[1]))
             krate.append(float(row[2]))
 
-    return eps, Pb, krate
+    return eps, Pu, krate
 
 
 def P_ratio(beta, e_i, e_j, s_i, s_j):
@@ -97,7 +97,7 @@ def P_ratio(beta, e_i, e_j, s_i, s_j):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('csv_in', help='eps, Pb, krate csv input file')
+    parser.add_argument('csv_in', help='eps, Pu, krate csv input file')
     parser.add_argument('s_csv', help='hybridmc avg_s_bias csv input file')
     parser.add_argument('t_csv', help='hybridmc mfpt csv input file')
     args = parser.parse_args()

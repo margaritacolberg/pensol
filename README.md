@@ -8,8 +8,8 @@ particles are not explicitly defined. Instead, only the random forces that
 occur on the surface of the protein to mimic solvent-protein collisions are
 simulated. Ten sample transitions of the protein crambin are chosen between
 different pairs of intermediate states, and the transition rate (`krate`) and
-the probability of the initial state relative to the sum of the probabilities
-of the initial and final states (`Pb`) are calculated for each.
+the population of the unbonded state at equilibrium (`Pu`) are calculated for
+each.
 
 ## Directories
 
@@ -89,14 +89,14 @@ To run a simulation for one transition on a computing cluster, use
 `run_diff_eps.py`. To run a simulation for one transition on a local computer,
 use `run.py`.
 
-### Calculate PenSol `krate` and `Pb`
+### Calculate PenSol `krate` and `Pu`
 
-To calculate the `krate` and `Pb` for the PenSol model, use a non-zero epsilon
+To calculate the `krate` and `Pu` for the PenSol model, use a non-zero epsilon
 value such as 3.0 when submitting a simulation using `run_diff_eps.py`. When
 all transitions at this epsilon are completed, use `run_krate_solvent.py` to
-get `krate` and `Pb`. This will create a csv file in the home directory called
-`krate_solvent.csv`, which stores `krate` and `Pb`. Alternatively, to obtain
-`krate` and `Pb` for a single transition, enter transition specific folder, and
+get `krate` and `Pu`. This will create a csv file in the home directory called
+`krate_solvent.csv`, which stores `krate` and `Pu`. Alternatively, to obtain
+`krate` and `Pu` for a single transition, enter transition specific folder, and
 run `krate_solvent.py`.
 
 ### Calculate HybridMC Entropy and Mean First Passage Times (MFPT)
@@ -110,15 +110,15 @@ several HDF5 files in `crambin/hybridmc_*` due to `nboot` of
 `get_error_s_bias.py` being greater than 1, use the first HDF5 file to
 calculate MFPT.
 
-### Calculate HybridMC `krate` and `Pb`
+### Calculate HybridMC `krate` and `Pu`
 
-To calculate the `krate` and `Pb` for the HybridMC model, set epsilon to zero
+To calculate the `krate` and `Pu` for the HybridMC model, set epsilon to zero
 when submitting a simulation using `run_diff_eps.py`. When all transitions at
 this epsilon are completed, use `run_vacf_or_msd.py` with `msd.py` to calculate
 the mean squared displacement (MSD) for each transition. To get `krate` and
-`Pb` for the HybridMC model for all transitions, use `run_krate_hybridmc.py`.
+`Pu` for the HybridMC model for all transitions, use `run_krate_hybridmc.py`.
 This will create a csv file in the main directory called `krate_hybridmc.csv`,
-which stores `krate` and `Pb`. Alternatively, to obtain `krate` and `Pb` for a
+which stores `krate` and `Pu`. Alternatively, to obtain `krate` and `Pu` for a
 single transition, enter transition specific folder and run `plot_msd.py`,
 followed by `krate_hybridmc.py`.
 

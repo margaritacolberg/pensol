@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # example of how to run:
-# python ../tools/run_krate_hybridmc.py 8 16 3.0
+# python ../tools/run_krate_hybridmc.py 3.0 4 22 8
 
 import argparse
 import glob
@@ -32,7 +32,7 @@ def main(args):
         s_bias_name = base_name + '_s_bias_error.csv'
         s_bias_path = '../{}/{}'.format(base_name, s_bias_name)
 
-        diff_command = ['python', diff_file, json_name, args.t_i, args.t_j]
+        diff_command = ['python', diff_file, json_name, args.t_i, args.t_j, args.gap]
         subprocess.check_call(diff_command, cwd=dir_name)
         krate_command = ['python', krate_file, json_name, hybridmc_path,
                 s_bias_path, args.eps]
@@ -41,11 +41,13 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('eps', help='epsilon input value')
     parser.add_argument('t_i',
             help='index of first t in range of t for fitting')
     parser.add_argument('t_j',
             help='index of last t in range of t for fitting')
-    parser.add_argument('eps', help='epsilon input value')
+    parser.add_argument('gap',
+            help='minimum gap in indices between first t and last t')
     args = parser.parse_args()
 
     main(args)

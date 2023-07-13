@@ -5,7 +5,7 @@
 # krate_solvent.py uses the configurational probability obtained at each step
 # of a trajectory, averaged over an ensemble of trajectories, to construct a
 # decay curve of configurational probability vs. t; the fit of this curve
-# produces the krate, Pb, and the standard error for the transition whose
+# produces the krate, Pu, and the standard error for the transition whose
 # initial and final states differ by one bond in the presence of a solvent
 #
 # example of how to run:
@@ -76,43 +76,43 @@ def main(args):
 
     t = np.array(t)
 
-    Pb, krate = Pb_krate(eps, config_prob, t)
+    Pu, krate = Pu_krate(eps, config_prob, t)
     nboot = 300
-    l_Pb_ci, u_Pb_ci, l_krate_ci, u_krate_ci = Pb_krate_se(config_prob_store, t, eps, traj_num, nboot)
+    l_Pu_ci, u_Pu_ci, l_krate_ci, u_krate_ci = Pu_krate_err(config_prob_store, t, eps, traj_num, nboot)
 
-    print('parameters: Pb: {}, krate: {}'.format(Pb, krate))
-    print('the CI of Pb is [{}, {}]'.format(l_Pb_ci, u_Pb_ci))
+    print('parameters: Pu: {}, krate: {}'.format(Pu, krate))
+    print('the CI of Pu is [{}, {}]'.format(l_Pu_ci, u_Pu_ci))
     print('the CI of krate is [{}, {}]'.format(l_krate_ci, u_krate_ci))
 
-    l_Pb_err = Pb - l_Pb_ci
-    u_Pb_err = u_Pb_ci - Pb
+    l_Pu_err = Pu - l_Pu_ci
+    u_Pu_err = u_Pu_ci - Pu
     l_krate_err = krate - l_krate_ci
     u_krate_err = u_krate_ci - krate
 
     csv_name = '../krate_solvent.csv'
     with open(csv_name, 'a') as output_csv:
         writer = csv.writer(output_csv)
-        writer.writerows([[bits_i, bits_j, eps, Pb, l_Pb_err, u_Pb_err, krate, l_krate_err, u_krate_err]])
+        writer.writerows([[bits_i, bits_j, eps, Pu, l_Pu_err, u_Pu_err, krate, l_krate_err, u_krate_err]])
 
     plt.plot(t, config_prob, label='data')
-    plt.plot(t, P(t, Pb, krate), '--', label='fit')
+    plt.plot(t, P(t, Pu, krate), '--', label='fit')
     plt.legend()
     plt.xlabel('t')
     plt.ylabel('Configurational Probability')
     plt.savefig('probability_{}.pdf'.format(eps), format='pdf')
 
 
-def P(t, Pb, krate):
-    return Pb - ((Pb - 1.0) * np.exp(-krate * t))
+def P(t, Pu, krate):
+    return Pu - ((Pu - 1.0) * np.exp(-krate * t))
 
 
-def Pb_krate(eps, config_prob, t):
-    # Pb is obtained from the plateau of the fit over the configurational
-    # probability vs. t decay curve; Pb is defined as p_i / (p_i + p_j), where
+def Pu_krate(eps, config_prob, t):
+    # Pu is obtained from the plateau of the fit over the configurational
+    # probability vs. t decay curve; Pu is defined as p_i / (p_i + p_j), where
     # p_i is the probability of being in state i, the initial state, and p_j is
     # the probability of being in state j, the final state with one bond more
     # than state i
-    Pb = 0.0
+    Pu = 0.0
     # krate is defined as K_ij + K_ji, where K_ij the rate of forming a bond by
     # transitioning from state i to j, and K_ji is the rate of breaking a bond
     # by transitioning from state j to state i
@@ -120,18 +120,18 @@ def Pb_krate(eps, config_prob, t):
     # for eps = 1.0, data is particularly noisy so curve fitting uses different
     # method to produce closer fit
     if eps == 1.0:
-        # number of points averaged over to produce Pb is arbitrarily chosen
-        Pb = np.sum(config_prob[len(config_prob)-400:len(config_prob)-1]) / 399
-        krate = (1 / scipy.integrate.simps(config_prob - Pb, t)) * (1.0 - Pb)
+        # number of points averaged over to produce Pu is arbitrarily chosen
+        Pu = np.sum(config_prob[len(config_prob)-400:len(config_prob)-1]) / 399
+        krate = (1 / scipy.integrate.simps(config_prob - Pu, t)) * (1.0 - Pu)
     else:
         params, cv = scipy.optimize.curve_fit(P, t, config_prob)
-        Pb, krate = params
+        Pu, krate = params
 
-    return Pb, krate
+    return Pu, krate
 
 
-def Pb_krate_se(config_prob_store, t, eps, traj_num, nboot):
-    Pb = []
+def Pu_krate_err(config_prob_store, t, eps, traj_num, nboot):
+    Pu = []
     krate = []
     for i in range(nboot):
         boot = utils.resample(config_prob_store,
@@ -140,22 +140,22 @@ def Pb_krate_se(config_prob_store, t, eps, traj_num, nboot):
         boot = np.sum(boot, axis=0) / traj_num
         boot = [1.0 - i for i in boot]
 
-        Pb_i, krate_i = Pb_krate(eps, boot, t)
-        Pb.append(Pb_i)
+        Pu_i, krate_i = Pu_krate(eps, boot, t)
+        Pu.append(Pu_i)
         krate.append(krate_i)
 
-    Pb = np.sort(Pb)
+    Pu = np.sort(Pu)
     krate = np.sort(krate)
 
     lower_ind = int(0.025 * nboot)
     upper_ind = int(0.975 * nboot)
 
-    lower_Pb = Pb[lower_ind]
-    upper_Pb = Pb[upper_ind]
+    lower_Pu = Pu[lower_ind]
+    upper_Pu = Pu[upper_ind]
     lower_krate = krate[lower_ind]
     upper_krate = krate[upper_ind]
 
-    return lower_Pb, upper_Pb, lower_krate, upper_krate
+    return lower_Pu, upper_Pu, lower_krate, upper_krate
 
 
 if __name__ == '__main__':

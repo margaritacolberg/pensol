@@ -20,13 +20,22 @@ def main(args):
 
     m = json_data['m']
     m_sol = json_data['m_sol']
+    # mass ratio
     mu = m / m_sol
     V = json_data['length']**3
+    # number density of solvent
     rho = json_data['nsol'] / V
-    new_rho = 20
+    new_rho = float(args.new_rho)
+
+    # in Eq. 31 for our model, omega_i is always the same, so the sum will
+    # evaluate to n_omega * omega / n_omega = omega, where omega is the
+    # rotation matrix given in solvent.cc; if the angle is 90 degrees,
+    # Tr(omega) = Rxx + Ryy + Rzz = u dot u, where u = <u_x, u_y, u_z>, and
+    # since u is a unit vector (chosen on a unit sphere), Tr(omega) = 1, thus
+    # c_gamma = 1/3
     c_gamma = 1/3
     del_t = json_data['del_t_coll']
-    new_del_t = 0.018
+    new_del_t = float(args.new_del_t)
 
     # see Schofield et al., J. Chem. Phys., 2012, 136
     #

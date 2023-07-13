@@ -7,7 +7,7 @@
 # of the msd vs. t data from which the diffusion coefficient is obtained
 #
 # example of how to run:
-# python ../../tools/plot_msd.py hardspheres_4_0100101100_1100101100_eps_0.0.json 8 16
+# python ../../tools/plot_msd.py hardspheres_4_0100101100_1100101100_eps_0.0.json 4 22 8
 #
 # note that for crambin, plot_msd.py is run only in dir for which eps was set
 # to 0.0
@@ -76,7 +76,7 @@ def main(args):
     D = fit[0] / 6.0
 
     nboot = 300
-    l_D_err, u_D_err = D_std(nboot, traj_num, msd_store, t, t_i, t_j, gap)
+    l_D_err, u_D_err = D_err(nboot, traj_num, msd_store, t, t_i, t_j, gap)
 
     print('first t is', t[t_i])
     print('last t is', t[t_j])
@@ -104,7 +104,7 @@ def main(args):
     plt.clf()
 
 
-def D_std(nboot, traj_num, msd, t, t_min, t_max, gap):
+def D_err(nboot, traj_num, msd, t, t_min, t_max, gap):
     D = []
     for i in range(nboot):
         t_i, t_j = get_times(t_min, t_max, gap)

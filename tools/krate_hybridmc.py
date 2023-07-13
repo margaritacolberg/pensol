@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # krate_hybridmc.py uses the diffusion coefficient obtained from the solvent
-# model to calculate the krate and Pb for the hybridmc model for the transition
+# model to calculate the krate and Pu for the hybridmc model for the transition
 # whose initial and final states differ by one bond
 #
 # example of how to run:
@@ -41,10 +41,10 @@ def main(args):
     # percent relative error for P_i_div_P_j is the same as rel_e_s_bias
     P_i_div_P_j = math.exp(-beta * eps) * exp_s_bias_diff
     P_j_div_P_i = 1 / P_i_div_P_j
-    Pb = 1 / (1 + P_j_div_P_i)
-    Pb_rel_e = (rel_e_s_bias * P_j_div_P_i) / (1 + P_j_div_P_i)
-    Pb_err = (Pb_rel_e / 100) * Pb
-    print('Pb for hybridmc is {}, with error {}'.format(Pb, Pb_err))
+    Pu = 1 / (1 + P_j_div_P_i)
+    Pu_rel_e = (rel_e_s_bias * P_j_div_P_i) / (1 + P_j_div_P_i)
+    Pu_err = (Pu_rel_e / 100) * Pu
+    print('Pu for hybridmc is {}, with error {}'.format(Pu, Pu_err))
 
     inner_fpt, outer_fpt = matrix_element.get_fpt(args.csv_t, t_ind)
 
@@ -69,7 +69,7 @@ def main(args):
     csv_name = '../krate_hybridmc.csv'
     with open(csv_name, 'a') as output_csv:
         writer = csv.writer(output_csv)
-        writer.writerows([[bits_i, bits_j, eps, D, Pb, Pb_err, krate, l_krate_err, u_krate_err]])
+        writer.writerows([[bits_i, bits_j, eps, D, Pu, Pu_err, krate, l_krate_err, u_krate_err]])
 
 
 def get_D(csv_in):
