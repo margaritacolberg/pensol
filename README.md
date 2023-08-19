@@ -131,3 +131,8 @@ the latter case, `run_vacf_or_msd.py` would need to be carried out with
 
 To obtain a ratio of hybridmc to solvent `krate` at different epsilons for a
 single transition, run `rate_ratios.py`.
+
+### Calculate the Diffusion Coefficient
+
+To calculate the diffusion coefficient based on the values of the parameters
+given in `crambin.json`, use `calc_diff.py`.
