@@ -69,7 +69,7 @@ def main(args):
     plt.plot(t[:100], vacf[:100])
     plt.xlabel('t')
     plt.ylabel('VACF')
-    plt.savefig('vacf.png')
+    plt.savefig('vacf.pdf', format='pdf')
     plt.clf()
 
     diff, time = calculate_diff(new_vacf, new_t)
