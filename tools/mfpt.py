@@ -84,7 +84,7 @@ def fpt_write_wrap(json_in, hdf5_in, nboot, csv_out, layers):
             run_bootstrap = True
         else:
             run_bootstrap = False
-    # if running one transition only (ie. for testing),
+    # if running one transition only (i.e. for testing),
     else:
         if not layers and nboot > 0:
             run_bootstrap = True

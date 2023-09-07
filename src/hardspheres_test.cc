@@ -529,7 +529,7 @@ BOOST_AUTO_TEST_CASE(collision_events) {
                            update_config, max_nbonds);
 
   BOOST_REQUIRE_EQUAL(event_queue.size(), 12);
-  // test collision events for each particle, ie. one event occurs for a
+  // test collision events for each particle, i.e. one event occurs for a
   // collision between 0 and 7, and one for 7 and 0, but because of swap in
   // if_coll, the second event is queued as 0 colliding with 7
   {
