@@ -3,7 +3,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # example of how to run:
-# python ../tools/run_krate_hybridmc.py 3.0 4 22 8
+# python ../tools/run_krate_hybridmc.py 3.0 40 60 10
+#
+# in the example above, the values of t_i, t_j, and the gap are set for the old
+# parameter runs; the new parameter runs require the values 150, 300, and 50
 
 import argparse
 import glob

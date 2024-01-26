@@ -60,8 +60,8 @@ def main(args):
     K_ji = 1 / K_ji_inv
     K_ij = K_ji * P_i_div_P_j
 
-    l_krate_err = calculate_K_err(exp_s_bias_diff, l_D_rel_e, term_1, term_2, rel_e_s_bias, K_ji_inv, K_ji, K_ij)
-    u_krate_err = calculate_K_err(exp_s_bias_diff, u_D_rel_e, term_1, term_2, rel_e_s_bias, K_ji_inv, K_ji, K_ij)
+    l_krate_err = calculate_K_err(l_D_rel_e, term_1, term_2, rel_e_s_bias, K_ji_inv, K_ji, K_ij)
+    u_krate_err = calculate_K_err(u_D_rel_e, term_1, term_2, rel_e_s_bias, K_ji_inv, K_ji, K_ij)
 
     krate = K_ij + K_ji
     print('krate for hybridmc is {}, with error [{}, {}]'.format(krate, l_krate_err, u_krate_err))
@@ -97,8 +97,8 @@ def get_exp_s_bias(csv_in):
     return exp_s_bias, rel_e_s_bias
 
 
-def calculate_K_err(exp_s_bias_diff, D_rel_e, term_1, term_2, rel_e_s_bias, K_ji_inv, K_ji, K_ij):
-    term_1_rel_e = math.sqrt(exp_s_bias_diff**2 + 5.0**2 + D_rel_e**2)
+def calculate_K_err(D_rel_e, term_1, term_2, rel_e_s_bias, K_ji_inv, K_ji, K_ij):
+    term_1_rel_e = math.sqrt(rel_e_s_bias**2 + 1.0**2 + D_rel_e**2)
     term_1_abs_e = (term_1_rel_e / 100) * term_1
     term_2_rel_e = math.sqrt(5.0**2 + D_rel_e**2)
     term_2_abs_e = (term_2_rel_e / 100) * term_2

@@ -7,7 +7,7 @@
 # of the msd vs. t data from which the diffusion coefficient is obtained
 #
 # example of how to run:
-# python ../../tools/plot_msd.py hardspheres_4_0100101100_1100101100_eps_0.0.json 4 22 8
+# python ../../tools/plot_msd.py hardspheres_4_0100101100_1100101100_eps_0.0.json 40 60 10
 #
 # note that for crambin, plot_msd.py is run only in dir for which eps was set
 # to 0.0
@@ -15,12 +15,15 @@
 # note also that to run plot_msd.py, the user must first enter the transition
 # specific directory (for example,
 # hardspheres_4_0100101100_1100101100_eps_0.0), to run the above command
+#
+# in the example above, the values of t_i, t_j, and the gap are set for the old
+# parameter runs; the new parameter runs require the values 150, 300, and 50
 
 import argparse
 import csv
 import json
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use('pgf')
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -28,6 +31,31 @@ import random
 import re
 import scipy.stats
 from sklearn import utils
+
+
+matplotlib.rcParams.update({
+    # figsize: width, height
+    "figure.figsize": [2.75, 2.5],
+    "figure.subplot.left": 0.18,
+    "figure.subplot.right": 0.99,
+    "figure.subplot.bottom": 0.18,
+    "figure.subplot.top": 0.99,
+    "pgf.texsystem": "lualatex",
+    "pgf.rcfonts": False,
+    "pgf.preamble": [
+        "\\usepackage{amsmath}",
+        "\\usepackage{unicode-math}",
+        "\\setmainfont{TeX Gyre Pagella}",
+        "\\setmathfont{TeX Gyre Pagella Math}",
+        "\\setmathfont[range={cal,bfcal},StylisticSet=1]{XITS Math}"
+        ],
+    "font.family": "serif",
+    "font.size": 11,
+    "axes.titlesize": 11,
+    "legend.fontsize": 11,
+    "legend.labelspacing": 0.2,
+    "legend.loc": "lower right",
+})
 
 
 def main(args):
@@ -95,10 +123,10 @@ def main(args):
             line.append(line_i)
             t_fit.append(t[i])
 
-    plt.plot(t[0:500], msd[0:500], label='data')
-    plt.plot(t_fit, line, label='fit')
+    plt.plot(t[30:70], msd[30:70], label='Data')
+    plt.plot(t_fit, line, label='Fit')
     plt.legend()
-    plt.xlabel('t')
+    plt.xlabel('$t$')
     plt.ylabel('MSD')
     plt.savefig('msd.pdf', format='pdf')
     plt.clf()

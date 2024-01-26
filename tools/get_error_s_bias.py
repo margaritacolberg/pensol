@@ -57,15 +57,15 @@ def main(args):
     s_bias_mean = np.mean(s_bias)
     print('mean of entropy samples:', s_bias_mean)
 
-    s_bias_var = np.var(s_bias)
-    print('var of entropy samples:', s_bias_var)
+    s_bias_std = np.std(s_bias)
+    print('std of entropy samples:', s_bias_std)
 
-    rel_e = s_bias_var / s_bias_mean
+    rel_e = s_bias_std / s_bias_mean
     percent_rel_e = rel_e * 100
     print('percent error:', percent_rel_e)
 
     csv_name = '{}_s_bias_error.csv'.format(output_name)
-    output = [[s_bias_mean, s_bias_var, percent_rel_e]]
+    output = [[s_bias_mean, s_bias_std, percent_rel_e]]
     with open(csv_name, 'w') as output_csv:
         writer = csv.writer(output_csv)
         writer.writerows(output)

@@ -25,7 +25,7 @@ import csv
 import h5py
 import json
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use('pgf')
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -34,6 +34,31 @@ import scipy.integrate
 import scipy.optimize
 from operator import add
 from sklearn import utils
+
+
+matplotlib.rcParams.update({
+    # figsize: width, height
+    "figure.figsize": [2.75, 2.5],
+    "figure.subplot.left": 0.22,
+    "figure.subplot.right": 0.97,
+    "figure.subplot.bottom": 0.18,
+    "figure.subplot.top": 0.99,
+    "pgf.texsystem": "lualatex",
+    "pgf.rcfonts": False,
+    "pgf.preamble": [
+        "\\usepackage{amsmath}",
+        "\\usepackage{unicode-math}",
+        "\\setmainfont{TeX Gyre Pagella}",
+        "\\setmathfont{TeX Gyre Pagella Math}",
+        "\\setmathfont[range={cal,bfcal},StylisticSet=1]{XITS Math}"
+        ],
+    "font.family": "serif",
+    "font.size": 11,
+    "axes.titlesize": 11,
+    "legend.fontsize": 11,
+    "legend.labelspacing": 0.2,
+    "legend.loc": "upper right",
+})
 
 
 def main(args):
@@ -94,11 +119,11 @@ def main(args):
         writer = csv.writer(output_csv)
         writer.writerows([[bits_i, bits_j, eps, Pu, l_Pu_err, u_Pu_err, krate, l_krate_err, u_krate_err]])
 
-    plt.plot(t, config_prob, label='data')
-    plt.plot(t, P(t, Pu, krate), '--', label='fit')
+    plt.plot(t, config_prob, label='Data')
+    plt.plot(t, P(t, Pu, krate), '--', label='Fit')
     plt.legend()
-    plt.xlabel('t')
-    plt.ylabel('Configurational Probability')
+    plt.xlabel('$t$')
+    plt.ylabel('Configurational probability')
     plt.savefig('probability_{}.pdf'.format(eps), format='pdf')
 
 
