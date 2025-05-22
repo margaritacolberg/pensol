@@ -11,7 +11,8 @@ different pairs of intermediate states, and the transition rate (`krate`) and
 the population of the unbonded state at equilibrium (`Pu`) are calculated for
 each.
 
-For more information, see the [preprint](https://arxiv.org/abs/2310.13223).
+For more information, see the [publication](https://doi.org/10.1063/5.0182607)
+or the [preprint](https://arxiv.org/abs/2310.13223).
 
 ## Directories
 
